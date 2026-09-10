@@ -1,6 +1,6 @@
 TOPTARGETS := all clean update
 
-$(TOPTARGETS): pre_build make_fastPathSign make_roothelper make_trollstore make_trollhelper_embedded make_trollhelper_package assemble_trollstore build_installer15 build_installer64e make_trollstore_lite
+$(TOPTARGETS): pre_build make_fastPathSign make_roothelper make_trollstore make_trollhelper_embedded make_trollhelper_package assemble_trollstore build_installer15 build_installer64e build_installer27 make_trollstore_lite
 
 pre_build:
 	@rm -rf ./_build 2>/dev/null || true
@@ -73,6 +73,25 @@ build_installer64e:
 	popd
 	@rm -rf ./_build/tmp64e
 
+# Sideloadable TrollHelper for iOS 26.6.1 (23G82) and iOS 27.0 RC - 27.x (24A-24Z), installable via AltStore/SideStore
+# Uses the non-legacy (CMS SignerInfo) persistence helper, as the legacy custom root certificate bypass is not supported on these versions
+# Note: the helper binary is intentionally not re-signed with the victim certificate, as that would remove the pre-applied CMS SignerInfo CoreTrust bypass
+build_installer27:
+	@mkdir -p ./_build/tmp27
+	@unzip ./Victim/InstallerVictim.ipa -d ./_build/tmp27
+	@cp ./_build/PersistenceHelper_Embedded ./_build/TrollStorePersistenceHelperToInject
+	@pwnify set-cpusubtype ./_build/TrollStorePersistenceHelperToInject 1
+	APP_PATH=$$(find ./_build/tmp27/Payload -name "*" -depth 1) ; \
+	APP_NAME=$$(basename $$APP_PATH) ; \
+	BINARY_NAME=$$(echo "$$APP_NAME" | cut -f 1 -d '.') ; \
+	echo $$BINARY_NAME ; \
+	pwnify pwn ./_build/tmp27/Payload/$$APP_NAME/$$BINARY_NAME ./_build/TrollStorePersistenceHelperToInject
+	@pushd ./_build/tmp27 ; \
+	zip -vrD ../../_build/TrollHelper_iOS27.ipa * ; \
+	popd
+	@rm ./_build/TrollStorePersistenceHelperToInject
+	@rm -rf ./_build/tmp27
+
 make_trollstore_lite:
 	@$(MAKE) -C ./RootHelper DEBUG=0 TROLLSTORE_LITE=1
 	@rm -rf ./TrollStoreLite/Resources/trollstorehelper
@@ -90,4 +109,4 @@ make_trollstore_lite:
 	@$(MAKE) -C ./TrollStoreLite $(MAKECMDGOALS)
 endif
 
-.PHONY: $(TOPTARGETS) pre_build assemble_trollstore make_trollhelper_package make_trollhelper_embedded build_installer15 build_installer64e
+.PHONY: $(TOPTARGETS) pre_build assemble_trollstore make_trollhelper_package make_trollhelper_embedded build_installer15 build_installer64e build_installer27

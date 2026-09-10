@@ -649,6 +649,16 @@ void determinePlatformVulnerableExploitTypes(void *context) {
         // iOS 14.0 - 16.6.1, 16.7 RC (if CUSTOM_ROOT_CERTIFICATE_V1 not supported)
         gPlatformVulnerabilities = EXPLOIT_TYPE_CMS_SIGNERINFO_V1;
     }
+    else if(strncmp(os_build, "23G82", 5) == 0)
+    {
+        // iOS 26.6.1 (23G82)
+        gPlatformVulnerabilities = EXPLOIT_TYPE_CMS_SIGNERINFO_V1;
+    }
+    else if(strncmp(os_build, "24A", 3) >= 0 && strncmp(os_build, "24Z", 3) <= 0)
+    {
+        // iOS 27.0 RC - 27.x (24A - 24Z)
+        gPlatformVulnerabilities = EXPLOIT_TYPE_CMS_SIGNERINFO_V1;
+    }
 
 	free(os_build);
 }

@@ -4,13 +4,15 @@ TrollStore is a permasigned jailed app that can permanently install any IPA you 
 
 It works because of an AMFI/CoreTrust bug where iOS does not correctly verify code signatures of binaries in which there are multiple signers.
 
-Supported versions: 14.0 beta 2 - 16.6.1, 16.7 RC (20H18), 17.0
+Supported versions: 14.0 beta 2 - 16.6.1, 16.7 RC (20H18), 17.0, 26.6.1 (23G82), 27.0 RC - 27.x (24A-24Z)
 
 ## Installing TrollStore
 
 For installing TrollStore, refer to the guides at [ios.cfw.guide](https://ios.cfw.guide/installing-trollstore)
 
-16.7.x (excluding 16.7 RC) and 17.0.1+ will NEVER be supported (unless a third CoreTrust bug is discovered, which is unlikely).
+16.7.x (excluding 16.7 RC) and 17.0.1 - 26.x (excluding 26.6.1 (23G82)) are not supported.
+
+On iOS 26.6.1 (23G82) and iOS 27.0 RC (24A-24Z), TrollHelper can be installed via AltStore or SideStore by sideloading the `TrollHelper_iOS27.ipa` from Releases.
 
 ## Updating TrollStore
 
