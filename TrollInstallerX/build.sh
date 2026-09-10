@@ -8,10 +8,13 @@ set -e
 # allowing TrollStore installation without any kernel exploit.
 
 cd "$(dirname "$0")"
+SCRIPT_DIR="$(pwd)"
 
-FAST_PATH_SIGN="${FAST_PATH_SIGN:-../Exploits/fastPathSign/fastPathSign}"
-ROOT_HELPER="${ROOT_HELPER:-../RootHelper/.theos/obj/trollstorehelper}"
-TROLLSTORE_TAR="${TROLLSTORE_TAR:-../_build/TrollStore.tar}"
+# Resolve to absolute paths: these are also used after pushd into DerivedData,
+# where relative paths would no longer point at the repo
+FAST_PATH_SIGN="${FAST_PATH_SIGN:-$SCRIPT_DIR/../Exploits/fastPathSign/fastPathSign}"
+ROOT_HELPER="${ROOT_HELPER:-$SCRIPT_DIR/../RootHelper/.theos/obj/trollstorehelper}"
+TROLLSTORE_TAR="${TROLLSTORE_TAR:-$SCRIPT_DIR/../_build/TrollStore.tar}"
 
 # Refresh the bundled TrollStore.tar from the latest build so the installer
 # ships the current TrollStore binaries
