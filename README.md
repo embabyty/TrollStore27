@@ -12,7 +12,10 @@ For installing TrollStore, refer to the guides at [ios.cfw.guide](https://ios.cf
 
 16.7.x (excluding 16.7 RC) and 17.0.1 - 26.x (excluding 26.6.1 (23G82)) are not supported.
 
-On iOS 26.6.1 (23G82) and iOS 27.0 RC (24A-24Z), TrollHelper can be installed via AltStore or SideStore by sideloading the `TrollHelper_iOS27.ipa` from Releases.
+On iOS 26.6.1 (23G82) and iOS 27.0 RC - 27.x (24A-24Z), TrollStore can be installed via AltStore or SideStore by sideloading one of the following IPAs from Releases:
+
+- **`TrollInstallerX27.ipa`** (recommended): a TrollInstallerX fork with a CoreTrust install method for these firmwares. Open the app and press "Install TrollStore" - no computer, kernel exploit or victim app required. After installation it registers itself as the persistence helper and offers a "Refresh App Registrations" button.
+- **`TrollHelper_iOS27.ipa`**: the classic TrollHelper installer with an embedded root helper.
 
 ## Updating TrollStore
 
@@ -126,3 +129,5 @@ Google Threat Analysis Group - Found the CoreTrust bug as part of an in-the-wild
 [Fugu15 Presentation](https://youtu.be/rPTifU1lG7Q)
 
 [Write-Up on the first CoreTrust bug with more information](https://worthdoingbadly.com/coretrust/).
+
+[alfiecg24](https://github.com/alfiecg24) - TrollInstallerX, which this project's TrollInstallerX27 installer is forked from.

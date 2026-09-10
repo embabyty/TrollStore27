@@ -1,6 +1,6 @@
 TOPTARGETS := all clean update
 
-$(TOPTARGETS): pre_build make_fastPathSign make_roothelper make_trollstore make_trollhelper_embedded make_trollhelper_package assemble_trollstore build_installer15 build_installer64e build_installer27 make_trollstore_lite
+$(TOPTARGETS): pre_build make_fastPathSign make_roothelper make_trollstore make_trollhelper_embedded make_trollhelper_package assemble_trollstore build_installer15 build_installer64e build_installer27 build_trollinstallerx make_trollstore_lite
 
 pre_build:
 	@rm -rf ./_build 2>/dev/null || true
@@ -43,6 +43,13 @@ assemble_trollstore:
 	@export COPYFILE_DISABLE=1
 	@tar -czvf ./_build/TrollStore.tar -C ./TrollStore/.theos/obj TrollStore.app
 
+# TrollInstallerX fork with CoreTrust install method for iOS 26.6.1 (23G82) and iOS 27.0 RC - 27.x (24A-24Z)
+build_trollinstallerx:
+	@bash ./TrollInstallerX/build.sh
+	@mkdir -p ./_build
+	@cp ./TrollInstallerX/TrollInstallerX27.ipa ./_build/TrollInstallerX27.ipa
+	@rm ./TrollInstallerX/TrollInstallerX27.ipa
+
 make_trollstore_lite:
 	@$(MAKE) -C ./RootHelper DEBUG=0 TROLLSTORE_LITE=1
 	@rm -rf ./TrollStoreLite/Resources/trollstorehelper
@@ -58,6 +65,9 @@ make_trollstore_lite:
 else
 make_trollstore_lite:
 	@$(MAKE) -C ./TrollStoreLite $(MAKECMDGOALS)
+
+build_trollinstallerx:
+	@echo "Skipping build_trollinstallerx during clean"
 endif
 
 # The TrollHelper installer IPAs are built from a signed "victim" App Store app
@@ -122,4 +132,4 @@ build_installer15 build_installer64e build_installer27:
 
 endif
 
-.PHONY: $(TOPTARGETS) pre_build assemble_trollstore make_trollhelper_package make_trollhelper_embedded build_installer15 build_installer64e build_installer27
+.PHONY: $(TOPTARGETS) pre_build assemble_trollstore make_trollhelper_package make_trollhelper_embedded build_installer15 build_installer64e build_installer27 build_trollinstallerx
