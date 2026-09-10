@@ -1,0 +1,77 @@
+name: Build IPAs
+
+on:
+  workflow_dispatch:
+    inputs:
+      victim_ipa_url:
+        description: "Optional direct URL to a signed InstallerVictim.ipa used to build the TrollHelper installer IPAs (falls back to the INSTALLER_VICTIM_IPA_URL repository variable)"
+        required: false
+        default: ""
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build:
+    name: Build TrollStore27
+    runs-on: macos-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install build dependencies
+        run: |
+          brew install libarchive openssl@3 pkg-config ldid
+          echo "PKG_CONFIG_PATH=$(brew --prefix openssl@3)/lib/pkgconfig" >> "$GITHUB_ENV"
+
+      - name: Install theos
+        run: |
+          export THEOS="$HOME/theos"
+          bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)" -- setup
+          echo "THEOS=$THEOS" >> "$GITHUB_ENV"
+
+      - name: Build pwnify
+        run: |
+          make -C Pwnify
+          echo "$GITHUB_WORKSPACE/Pwnify" >> "$GITHUB_PATH"
+
+      - name: Download victim IPA (if provided)
+        run: |
+          URL="${{ github.event.inputs.victim_ipa_url }}"
+          if [[ -z "$URL" ]]; then
+            URL="${{ vars.INSTALLER_VICTIM_IPA_URL }}"
+          fi
+          if [[ -n "$URL" ]]; then
+            curl -fL "$URL" -o Victim/InstallerVictim.ipa
+          fi
+          if [[ -f Victim/InstallerVictim.ipa ]]; then
+            echo "Victim IPA present - installer IPA targets (TrollHelper_iOS15 / _arm64e / _iOS27) will be built"
+          else
+            echo "No Victim/InstallerVictim.ipa - installer IPA targets will be skipped"
+          fi
+
+      - name: Build
+        run: make
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: TrollStore27-${{ github.ref_name }}
+          if-no-files-found: warn
+          path: |
+            _build/*
+            **/packages/*.deb
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            _build/*
+            **/packages/*.deb
+          generate_release_notes: true

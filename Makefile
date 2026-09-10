@@ -43,6 +43,29 @@ assemble_trollstore:
 	@export COPYFILE_DISABLE=1
 	@tar -czvf ./_build/TrollStore.tar -C ./TrollStore/.theos/obj TrollStore.app
 
+make_trollstore_lite:
+	@$(MAKE) -C ./RootHelper DEBUG=0 TROLLSTORE_LITE=1
+	@rm -rf ./TrollStoreLite/Resources/trollstorehelper
+	@cp ./RootHelper/.theos/obj/trollstorehelper_lite ./TrollStoreLite/Resources/trollstorehelper
+	@$(MAKE) -C ./TrollStoreLite package FINALPACKAGE=1
+	@$(MAKE) -C ./RootHelper TROLLSTORE_LITE=1 clean
+	@$(MAKE) -C ./TrollStoreLite clean
+	@$(MAKE) -C ./RootHelper DEBUG=0 TROLLSTORE_LITE=1 THEOS_PACKAGE_SCHEME=rootless
+	@rm -rf ./TrollStoreLite/Resources/trollstorehelper
+	@cp ./RootHelper/.theos/obj/trollstorehelper_lite ./TrollStoreLite/Resources/trollstorehelper
+	@$(MAKE) -C ./TrollStoreLite package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+
+else
+make_trollstore_lite:
+	@$(MAKE) -C ./TrollStoreLite $(MAKECMDGOALS)
+endif
+
+# The TrollHelper installer IPAs are built from a signed "victim" App Store app
+# which is intentionally not stored in the repository (see Victim/README.md).
+# If Victim/InstallerVictim.ipa is not present, these targets are skipped.
+
+ifneq ($(wildcard ./Victim/InstallerVictim.ipa),)
+
 build_installer15:
 	@mkdir -p ./_build/tmp15
 	@unzip ./Victim/InstallerVictim.ipa -d ./_build/tmp15
@@ -92,21 +115,11 @@ build_installer27:
 	@rm ./_build/TrollStorePersistenceHelperToInject
 	@rm -rf ./_build/tmp27
 
-make_trollstore_lite:
-	@$(MAKE) -C ./RootHelper DEBUG=0 TROLLSTORE_LITE=1
-	@rm -rf ./TrollStoreLite/Resources/trollstorehelper
-	@cp ./RootHelper/.theos/obj/trollstorehelper_lite ./TrollStoreLite/Resources/trollstorehelper
-	@$(MAKE) -C ./TrollStoreLite package FINALPACKAGE=1
-	@$(MAKE) -C ./RootHelper TROLLSTORE_LITE=1 clean
-	@$(MAKE) -C ./TrollStoreLite clean
-	@$(MAKE) -C ./RootHelper DEBUG=0 TROLLSTORE_LITE=1 THEOS_PACKAGE_SCHEME=rootless
-	@rm -rf ./TrollStoreLite/Resources/trollstorehelper
-	@cp ./RootHelper/.theos/obj/trollstorehelper_lite ./TrollStoreLite/Resources/trollstorehelper
-	@$(MAKE) -C ./TrollStoreLite package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
-
 else
-make_trollstore_lite:
-	@$(MAKE) -C ./TrollStoreLite $(MAKECMDGOALS)
+
+build_installer15 build_installer64e build_installer27:
+	@echo "Skipping $@: Victim/InstallerVictim.ipa not found"
+
 endif
 
 .PHONY: $(TOPTARGETS) pre_build assemble_trollstore make_trollhelper_package make_trollhelper_embedded build_installer15 build_installer64e build_installer27
