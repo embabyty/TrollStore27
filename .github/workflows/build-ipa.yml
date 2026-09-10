@@ -32,7 +32,16 @@ jobs:
       - name: Install theos
         run: |
           export THEOS="$HOME/theos"
-          bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)" -- setup
+          if [[ ! -d "$THEOS" ]]; then
+            git clone --recursive --depth 1 https://github.com/theos/theos.git "$THEOS"
+          fi
+          # Fetch the patched iOS SDK directly from the latest release asset.
+          # This avoids install-theos/install-sdk, which query the GitHub API and
+          # frequently get rate-limited on shared GitHub Actions runner IPs.
+          mkdir -p "$THEOS/sdks"
+          curl -fL "https://github.com/theos/sdks/releases/latest/download/iPhoneOS16.5.sdk.tar.xz" -o "$THEOS/sdks/iPhoneOS16.5.sdk.tar.xz"
+          tar -xJf "$THEOS/sdks/iPhoneOS16.5.sdk.tar.xz" -C "$THEOS/sdks"
+          rm "$THEOS/sdks/iPhoneOS16.5.sdk.tar.xz"
           echo "THEOS=$THEOS" >> "$GITHUB_ENV"
 
       - name: Build pwnify
