@@ -10,6 +10,15 @@
 #import <spawn.h>
 #import <sys/stat.h>
 
+// Private POSIX persona API (not declared in the iOS SDK headers).
+// Declared manually, same as TrollStore's spawnRoot.
+extern int posix_spawnattr_set_persona_np(const posix_spawnattr_t * __restrict attr, int32_t persona_id, uint32_t flags);
+extern int posix_spawnattr_set_persona_uid_np(const posix_spawnattr_t * __restrict attr, uid_t uid);
+extern int posix_spawnattr_set_persona_gid_np(const posix_spawnattr_t * __restrict attr, gid_t gid);
+#ifndef POSIX_SPAWN_PERSONA_FLAGS_OVERRIDE
+#define POSIX_SPAWN_PERSONA_FLAGS_OVERRIDE 1
+#endif
+
 
 NSString* get_NSString_from_file(int fd)
 {
